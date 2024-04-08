@@ -16,6 +16,8 @@ public class ServerGUI extends GUI {
     private JTextField portTextField;
     private JButton beginButton;
     private JButton stopButton;
+    private JTextField senTextField;
+    private JButton sendButton;
 
     private ChatServer chatServer;
 
@@ -23,10 +25,14 @@ public class ServerGUI extends GUI {
         portTextField = new JTextField();
         beginButton = new JButton("Begin");
         stopButton = new JButton("Close");
+        senTextField = new JTextField();
+        sendButton = new JButton("Send");
 
         portTextField.setFont(DEFAULT_FONT);
         beginButton.setFont(DEFAULT_FONT);
         stopButton.setFont(DEFAULT_FONT);
+        senTextField.setFont(DEFAULT_FONT);
+        sendButton.setFont(DEFAULT_FONT);
 
         topPanel.setLayout(new GridBagLayout());
 
@@ -53,15 +59,31 @@ public class ServerGUI extends GUI {
         stopButton.setPreferredSize(new Dimension(125, 30));
         topPanel.add(stopButton, c);
 
-        beginButton.setEnabled(true);
-        stopButton.setEnabled(false);
+        c.gridx = 0;
+        c.gridy = 1;
+        c.weightx = 1.0;
+        senTextField.setPreferredSize(new Dimension(0, 30));
+        topPanel.add(senTextField, c);
+
+        c.gridx = 1;
+        c.gridy = 1;
+        c.weightx = 0.0;
+        sendButton.setPreferredSize(new Dimension(125, 30));
+        topPanel.add(sendButton, c);
 
         addEvents();
+
+        beginButton.setEnabled(true);
+        stopButton.setEnabled(false);
+        sendButton.setEnabled(false);
+
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
     private void addEvents() {
         beginButton.addActionListener((ActionEvent e) -> handlerBeginButtonClicked(e));
         stopButton.addActionListener((ActionEvent e) -> handlerStopButtonClicked(e));
+        sendButton.addActionListener((ActionEvent e) -> handlerSendButtonClicked(e));
     }
 
     public void handlerBeginButtonClicked(ActionEvent e) {
@@ -84,6 +106,7 @@ public class ServerGUI extends GUI {
 
         beginButton.setEnabled(false);
         stopButton.setEnabled(true);
+        sendButton.setEnabled(true);
     }
 
     public void handlerStopButtonClicked(ActionEvent e) {
@@ -93,6 +116,16 @@ public class ServerGUI extends GUI {
 
             beginButton.setEnabled(true);
             stopButton.setEnabled(false);
+            sendButton.setEnabled(false);
+        }
+    }
+
+    private void handlerSendButtonClicked(ActionEvent e) {
+        String content = senTextField.getText();
+        if (chatServer != null && !content.isBlank()) {
+            writeLineTextArea("me: " + content);
+            chatServer.send("server: "+ content);
+            senTextField.setText("");
         }
     }
 

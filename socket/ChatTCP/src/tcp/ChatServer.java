@@ -21,7 +21,7 @@ public class ChatServer {
                     out.flush();
                     out.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
             outs.clear();
@@ -49,10 +49,23 @@ public class ChatServer {
                 }
             } catch (IOException e) {
                 if (running) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    public void send(String message) {
+        synchronized (outs) {
+            for (DataOutputStream out : outs) {
+                try {
+                    out.writeUTF(message);
+                    out.flush();
+                } catch(IOException e) {
+                    //e.printStackTrace();
+                }
+            }
+        }
     }
 
     private static class ClientHandler implements Runnable {
@@ -85,7 +98,7 @@ public class ChatServer {
                     broadcast(broadcastContent);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             } finally {
                 if (this.out != null) {
                     synchronized (outs) {
@@ -95,12 +108,12 @@ public class ChatServer {
                 try {
                     clientSocket.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
         }
 
-        private void broadcast(String message) throws IOException {
+        public void broadcast(String message) throws IOException {
             synchronized (outs) {
                 for (DataOutputStream out : outs) {
                     if (this.out != out) {

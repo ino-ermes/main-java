@@ -36,7 +36,7 @@ public class ChatClient {
                     }
                 } catch (IOException e) {
                     if (closedFromServer) {
-                        e.printStackTrace();
+                        //e.printStackTrace();
                     }
                 }
             }
@@ -49,7 +49,7 @@ public class ChatClient {
             out.flush();
         } catch (IOException e) {
             if (closedFromServer) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
     }

@@ -70,7 +70,7 @@ public class GUI extends JFrame {
 
     protected void writeLineTextArea(String content) {
         if (!content.isBlank()) {
-            textArea.append(" - " + content + "\n");
+            textArea.append(" $ " + content + "\n");
         }
     }
 }
