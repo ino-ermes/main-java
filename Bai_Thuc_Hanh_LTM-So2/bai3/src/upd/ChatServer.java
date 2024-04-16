@@ -60,7 +60,9 @@ public class ChatServer {
     private DatagramSocket serverSocket;
 
     public void stop() {
-
+        if(serverSocket != null) {
+            serverSocket.close();
+        }
     }
 
     static {
