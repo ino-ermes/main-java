@@ -17,23 +17,20 @@ public class ClientGUI extends GUI {
     private JButton connectButton;
     private JButton stopButton;
 
-    private JTextField senTextField;
-    private JButton sendButton;
+    private JButton getButton;
 
-    private UDPClient uDPClient;
+    private UDPClient udpClient;
 
     public ClientGUI() {
         portTextField = new JTextField();
         connectButton = new JButton("Begin");
         stopButton = new JButton("Close");
-        senTextField = new JTextField();
-        sendButton = new JButton("Send");
+        getButton = new JButton("Get datetime");
 
         portTextField.setFont(DEFAULT_FONT);
         connectButton.setFont(DEFAULT_FONT);
         stopButton.setFont(DEFAULT_FONT);
-        senTextField.setFont(DEFAULT_FONT);
-        sendButton.setFont(DEFAULT_FONT);
+        getButton.setFont(DEFAULT_FONT);
 
         topPanel.setLayout(new GridBagLayout());
 
@@ -62,28 +59,22 @@ public class ClientGUI extends GUI {
 
         c.gridx = 0;
         c.gridy = 1;
-        c.weightx = 1.0;
-        senTextField.setPreferredSize(new Dimension(0, 30));
-        topPanel.add(senTextField, c);
-
-        c.gridx = 1;
-        c.gridy = 1;
         c.weightx = 0.0;
-        sendButton.setPreferredSize(new Dimension(125, 30));
-        topPanel.add(sendButton, c);
+        getButton.setPreferredSize(new Dimension(125, 30));
+        topPanel.add(getButton, c);
 
         addEvents();
 
         connectButton.setEnabled(true);
         stopButton.setEnabled(false);
-        sendButton.setEnabled(false);
+        getButton.setEnabled(false);
 
     }
 
     private void addEvents() {
         connectButton.addActionListener((ActionEvent e) -> handlerConnectButtonClicked(e));
         stopButton.addActionListener((ActionEvent e) -> handlerStopButtonClicked(e));
-        sendButton.addActionListener((ActionEvent e) -> handlerSendButtonClicked(e));
+        getButton.addActionListener((ActionEvent e) -> handlergetButtonClicked(e));
     }
 
     private void handlerConnectButtonClicked(ActionEvent e) {
@@ -94,34 +85,33 @@ public class ClientGUI extends GUI {
             return;
         }
 
-        uDPClient = new UDPClient(port, "localhost", (String content) -> {
+        udpClient = new UDPClient(port, "localhost", (String content) -> {
             if (!content.isBlank()) {
                 writeLineTextArea(content);
             }
         });
 
-        uDPClient.start();
+        udpClient.start();
 
         connectButton.setEnabled(false);
         stopButton.setEnabled(true);
-        sendButton.setEnabled(true);
+        getButton.setEnabled(true);
     }
 
     private void handlerStopButtonClicked(ActionEvent e) {
-        if (uDPClient != null) {
-            uDPClient.close();
-            uDPClient = null;
+        if (udpClient != null) {
+            udpClient.close();
+            udpClient = null;
 
             connectButton.setEnabled(true);
             stopButton.setEnabled(false);
-            sendButton.setEnabled(false);
+            getButton.setEnabled(false);
         }
     }
 
-    private void handlerSendButtonClicked(ActionEvent e) {
-        if (uDPClient != null && !senTextField.getText().isBlank()) {
-            uDPClient.send(senTextField.getText());
-            senTextField.setText("");
+    private void handlergetButtonClicked(ActionEvent e) {
+        if (udpClient != null) {
+            udpClient.send("/datetime");
         }
     }
 }

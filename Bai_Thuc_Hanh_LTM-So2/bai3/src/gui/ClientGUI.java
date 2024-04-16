@@ -9,7 +9,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
-import udp.UDPClient;
+import upd.ChatClient;
 
 public class ClientGUI extends GUI {
 
@@ -20,7 +20,7 @@ public class ClientGUI extends GUI {
     private JTextField senTextField;
     private JButton sendButton;
 
-    private UDPClient uDPClient;
+    private ChatClient chatClient;
 
     public ClientGUI() {
         portTextField = new JTextField();
@@ -94,13 +94,13 @@ public class ClientGUI extends GUI {
             return;
         }
 
-        uDPClient = new UDPClient(port, "localhost", (String content) -> {
+        chatClient = new ChatClient(port, "localhost", content -> {
             if (!content.isBlank()) {
                 writeLineTextArea(content);
             }
         });
 
-        uDPClient.start();
+        chatClient.start();
 
         connectButton.setEnabled(false);
         stopButton.setEnabled(true);
@@ -108,9 +108,9 @@ public class ClientGUI extends GUI {
     }
 
     private void handlerStopButtonClicked(ActionEvent e) {
-        if (uDPClient != null) {
-            uDPClient.close();
-            uDPClient = null;
+        if (chatClient != null) {
+            chatClient.close();
+            chatClient = null;
 
             connectButton.setEnabled(true);
             stopButton.setEnabled(false);
@@ -119,8 +119,10 @@ public class ClientGUI extends GUI {
     }
 
     private void handlerSendButtonClicked(ActionEvent e) {
-        if (uDPClient != null && !senTextField.getText().isBlank()) {
-            uDPClient.send(senTextField.getText());
+        String content = senTextField.getText();
+        if (chatClient != null && !content.isBlank()) {
+            writeLineTextArea("me: " + content);
+            chatClient.send(content);
             senTextField.setText("");
         }
     }

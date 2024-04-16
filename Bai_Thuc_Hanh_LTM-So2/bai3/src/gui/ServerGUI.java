@@ -9,28 +9,27 @@ import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
-import udp.UDPClient;
+import upd.ChatServer;
 
-public class ClientGUI extends GUI {
+public class ServerGUI extends GUI {
 
     private JTextField portTextField;
-    private JButton connectButton;
+    private JButton beginButton;
     private JButton stopButton;
-
     private JTextField senTextField;
     private JButton sendButton;
 
-    private UDPClient uDPClient;
+    private ChatServer chatServer;
 
-    public ClientGUI() {
+    public ServerGUI() {
         portTextField = new JTextField();
-        connectButton = new JButton("Begin");
+        beginButton = new JButton("Begin");
         stopButton = new JButton("Close");
         senTextField = new JTextField();
         sendButton = new JButton("Send");
 
         portTextField.setFont(DEFAULT_FONT);
-        connectButton.setFont(DEFAULT_FONT);
+        beginButton.setFont(DEFAULT_FONT);
         stopButton.setFont(DEFAULT_FONT);
         senTextField.setFont(DEFAULT_FONT);
         sendButton.setFont(DEFAULT_FONT);
@@ -51,8 +50,8 @@ public class ClientGUI extends GUI {
         c.gridx = 1;
         c.gridy = 0;
         c.weightx = 0.0;
-        connectButton.setPreferredSize(new Dimension(125, 30));
-        topPanel.add(connectButton, c);
+        beginButton.setPreferredSize(new Dimension(125, 30));
+        topPanel.add(beginButton, c);
 
         c.gridx = 2;
         c.gridy = 0;
@@ -74,19 +73,20 @@ public class ClientGUI extends GUI {
 
         addEvents();
 
-        connectButton.setEnabled(true);
+        beginButton.setEnabled(true);
         stopButton.setEnabled(false);
         sendButton.setEnabled(false);
 
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
     private void addEvents() {
-        connectButton.addActionListener((ActionEvent e) -> handlerConnectButtonClicked(e));
+        beginButton.addActionListener((ActionEvent e) -> handlerBeginButtonClicked(e));
         stopButton.addActionListener((ActionEvent e) -> handlerStopButtonClicked(e));
         sendButton.addActionListener((ActionEvent e) -> handlerSendButtonClicked(e));
     }
 
-    private void handlerConnectButtonClicked(ActionEvent e) {
+    public void handlerBeginButtonClicked(ActionEvent e) {
         int port;
         try {
             port = Integer.parseInt(portTextField.getText());
@@ -94,34 +94,39 @@ public class ClientGUI extends GUI {
             return;
         }
 
-        uDPClient = new UDPClient(port, "localhost", (String content) -> {
+        chatServer = new ChatServer(port, content -> {
             if (!content.isBlank()) {
                 writeLineTextArea(content);
             }
         });
 
-        uDPClient.start();
+        chatServer.run();
 
-        connectButton.setEnabled(false);
+        writeLineTextArea("Listening on port: " + port);
+
+        beginButton.setEnabled(false);
         stopButton.setEnabled(true);
         sendButton.setEnabled(true);
     }
 
-    private void handlerStopButtonClicked(ActionEvent e) {
-        if (uDPClient != null) {
-            uDPClient.close();
-            uDPClient = null;
+    public void handlerStopButtonClicked(ActionEvent e) {
+        if (chatServer != null) {
+            chatServer.stop();
+            chatServer = null;
 
-            connectButton.setEnabled(true);
+            beginButton.setEnabled(true);
             stopButton.setEnabled(false);
             sendButton.setEnabled(false);
         }
     }
 
     private void handlerSendButtonClicked(ActionEvent e) {
-        if (uDPClient != null && !senTextField.getText().isBlank()) {
-            uDPClient.send(senTextField.getText());
+        String content = senTextField.getText();
+        if (chatServer != null && !content.isBlank()) {
+            writeLineTextArea("me: " + content);
+            chatServer.broadcast("server: "+ content, null);
             senTextField.setText("");
         }
     }
+
 }
